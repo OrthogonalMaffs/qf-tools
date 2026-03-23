@@ -8,17 +8,19 @@
   <style>
     .coming-soon {
       text-align: center;
-      padding: 80px 20px;
+      padding: 60px 20px;
     }
     .coming-soon h2 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       margin-bottom: 12px;
+      letter-spacing: -0.3px;
     }
     .coming-soon p {
-      color: var(--muted);
+      color: var(--body);
       max-width: 500px;
       margin: 0 auto;
       line-height: 1.6;
+      font-size: 0.88rem;
     }
     .feature-list {
       list-style: none;
@@ -28,14 +30,14 @@
     }
     .feature-list li {
       padding: 8px 0;
-      color: var(--muted);
-      font-size: 0.9rem;
+      color: var(--body);
+      font-size: 0.88rem;
     }
     .feature-list li::before {
       content: '';
       display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--accent);
       margin-right: 12px;
@@ -51,7 +53,7 @@
     </div>
 
     <div class="coming-soon">
-      <span class="badge badge-accent" style="font-size: 0.85rem; padding: 6px 14px;">Coming Soon</span>
+      <span class="badge badge-accent" style="font-size: 0.82rem; padding: 6px 16px;">Coming Soon</span>
       <h2 style="margin-top: 20px;">Contract Verification</h2>
       <p>Paste your Solidity source code and verify it matches the bytecode deployed on QF Network. Verified contracts are publicly readable and trusted.</p>
 
@@ -66,7 +68,8 @@
   </div>
 
   <footer>
-    <a href="/">QF Tools</a> &mdash; QF Network Chain ID 42
+    <div class="footer-tagline">Built by the community, for the community</div>
+    <a href="/">QF Tools</a> &mdash; Independent project, not affiliated with QF Network team
   </footer>
 
   <script src="../shared/nav.js"></script>

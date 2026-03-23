@@ -11,43 +11,33 @@
       align-items: center;
       gap: 14px;
       padding: 14px 16px;
+      margin-bottom: 8px;
     }
     .token-icon {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background: var(--border);
+      background: var(--accent-dim);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--accent);
       flex-shrink: 0;
     }
     .token-info { flex: 1; min-width: 0; }
-    .token-name { font-weight: 600; font-size: 0.95rem; }
-    .token-symbol { color: var(--muted); font-size: 0.85rem; margin-left: 6px; }
+    .token-name { font-weight: 600; font-size: 0.92rem; }
+    .token-symbol { color: var(--muted); font-size: 0.82rem; margin-left: 6px; }
     .token-address {
-      font-family: monospace;
-      font-size: 0.75rem;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.72rem;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 3px;
       word-break: break-all;
     }
-    .token-meta {
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .token-decimals {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-    .filter-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+    .token-meta { text-align: right; flex-shrink: 0; }
+    .token-decimals { font-size: 0.72rem; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -62,7 +52,7 @@
       This is a directory of tokens detected on QF Network — nothing more. Always do your own research before interacting with any token contract.
     </div>
 
-    <div class="filter-bar">
+    <div class="search-box">
       <input type="text" class="input" id="token-search" placeholder="Search by name, symbol, or address..." spellcheck="false">
     </div>
 
@@ -81,6 +71,7 @@
   </div>
 
   <footer>
+    <div class="footer-tagline">Built by the community, for the community</div>
     <a href="/">QF Tools</a> &mdash; Listing is not endorsement &mdash; Always DYOR
   </footer>
 
@@ -118,14 +109,14 @@
 
       listDiv.innerHTML = tokens.map((t) => `
         <div class="card token-row">
-          <div class="token-icon">${(t.symbol || "?").slice(0, 2)}</div>
+          <div class="token-icon">${escapeHtml((t.symbol || "?").slice(0, 2))}</div>
           <div class="token-info">
             <div>
               <span class="token-name">${escapeHtml(t.name)}</span>
               <span class="token-symbol">${escapeHtml(t.symbol)}</span>
               ${t.verified ? '<span class="badge badge-green" style="margin-left: 8px;">Verified</span>' : ''}
             </div>
-            <div class="token-address">${t.address}</div>
+            <div class="token-address">${escapeHtml(t.address)}</div>
           </div>
           <div class="token-meta">
             <div class="token-decimals">${t.decimals} decimals</div>

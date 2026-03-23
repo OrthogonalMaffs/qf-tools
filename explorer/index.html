@@ -15,8 +15,8 @@
       gap: 8px;
     }
     .tx-hash {
-      font-family: monospace;
-      font-size: 0.85rem;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
       color: var(--accent);
       word-break: break-all;
     }
@@ -27,20 +27,23 @@
       display: flex;
       justify-content: space-between;
       margin-top: 8px;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--muted);
       flex-wrap: wrap;
       gap: 4px;
     }
-    .tx-addr { font-family: monospace; font-size: 0.8rem; }
+    .tx-addr {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.78rem;
+    }
     .results-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
     }
-    .results-header h2 { font-size: 1.1rem; }
-    .results-count { color: var(--muted); font-size: 0.85rem; }
+    .results-header h2 { font-size: 1.05rem; }
+    .results-count { color: var(--muted); font-size: 0.82rem; }
     @media (max-width: 600px) {
       .tx-row { flex-direction: column; align-items: flex-start; }
     }
@@ -78,7 +81,8 @@
   </div>
 
   <footer>
-    <a href="/">QF Tools</a> &mdash; QF Network Chain ID 42
+    <div class="footer-tagline">Built by the community, for the community</div>
+    <a href="/">QF Tools</a> &mdash; Independent project, not affiliated with QF Network team
   </footer>
 
   <script src="../shared/nav.js"></script>
@@ -135,7 +139,6 @@
           const isOut = tx.from === addrLower;
           const isIn = tx.to === addrLower;
           const isSelf = isOut && isIn;
-          const direction = isSelf ? "self" : isOut ? "out" : "in";
           const dirLabel = isSelf ? "Self" : isOut ? "Out" : "In";
           const badgeClass = isSelf ? "badge-accent" : isOut ? "badge-red" : "badge-green";
           const valueClass = isSelf ? "" : isOut ? "negative" : "positive";

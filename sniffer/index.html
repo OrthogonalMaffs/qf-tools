@@ -8,23 +8,25 @@
   <style>
     .coming-soon {
       text-align: center;
-      padding: 60px 20px;
+      padding: 50px 20px;
     }
     .coming-soon h2 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       margin-bottom: 12px;
+      letter-spacing: -0.3px;
     }
     .coming-soon p {
-      color: var(--muted);
+      color: var(--body);
       max-width: 550px;
       margin: 0 auto;
       line-height: 1.6;
+      font-size: 0.88rem;
     }
     .two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      max-width: 600px;
+      gap: 16px;
+      max-width: 580px;
       margin: 30px auto 0;
       text-align: left;
     }
@@ -34,21 +36,21 @@
     .tier-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 24px;
     }
-    .tier-card h3 { font-size: 1rem; margin-bottom: 10px; }
+    .tier-card h3 { font-size: 0.95rem; margin-bottom: 12px; }
     .tier-card ul {
       list-style: none;
-      font-size: 0.85rem;
-      color: var(--muted);
+      font-size: 0.82rem;
+      color: var(--body);
     }
-    .tier-card ul li { padding: 4px 0; }
+    .tier-card ul li { padding: 5px 0; }
     .tier-card ul li::before {
       content: '';
       display: inline-block;
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       margin-right: 10px;
       vertical-align: middle;
@@ -61,11 +63,15 @@
       max-width: 500px;
       margin-left: auto;
       margin-right: auto;
+      background: var(--accent-ghost);
+      border: 1px solid var(--accent-dim);
+      border-radius: 10px;
+      padding: 18px 22px;
     }
     .burn-note p {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.5;
+      font-size: 0.82rem;
+      color: var(--body);
+      line-height: 1.6;
     }
     .burn-note strong { color: var(--accent); }
   </style>
@@ -84,7 +90,7 @@
     </div>
 
     <div class="coming-soon">
-      <span class="badge badge-accent" style="font-size: 0.85rem; padding: 6px 14px;">Coming Soon</span>
+      <span class="badge badge-accent" style="font-size: 0.82rem; padding: 6px 16px;">Coming Soon</span>
       <h2 style="margin-top: 20px;">Automated Safety Scores</h2>
       <p>Scan any token contract for common risks. Developers can apply for a QF Tools Verified badge to show confidence in their contract.</p>
 
@@ -121,6 +127,7 @@
   </div>
 
   <footer>
+    <div class="footer-tagline">Built by the community, for the community</div>
     <a href="/">QF Tools</a> &mdash; Not a security audit &mdash; Not financial advice &mdash; Always DYOR
   </footer>
 
