@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validator Dashboard — QF Tools</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    .coming-soon {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .coming-soon h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+    .coming-soon p {
+      color: var(--body);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-size: 0.88rem;
+    }
+    .feature-list {
+      list-style: none;
+      max-width: 400px;
+      margin: 30px auto 0;
+      text-align: left;
+    }
+    .feature-list li {
+      padding: 8px 0;
+      color: var(--body);
+      font-size: 0.88rem;
+    }
+    .feature-list li::before {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 12px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>Validator <span>Dashboard</span></h1>
+      <p class="subtitle">Node operators and validators on QF Network</p>
+    </div>
+
+    <div class="coming-soon">
+      <span class="badge badge-accent" style="font-size: 0.82rem; padding: 6px 16px;">Coming Soon</span>
+      <h2 style="margin-top: 20px;">Validator Overview</h2>
+      <p>Monitor the validators securing QF Network. Uptime, performance, and staking information.</p>
+
+      <ul class="feature-list">
+        <li>Active validator list</li>
+        <li>Uptime and performance metrics</li>
+        <li>Staking information</li>
+        <li>Block production stats</li>
+        <li>Node geographic distribution</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-tagline">Built by the community, for the community</div>
+    <a href="/">QF Tools</a> &mdash; Independent project, not affiliated with QF Network team
+  </footer>
+
+  <script src="../shared/nav.js"></script>
+</body>
+</html>

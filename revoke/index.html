@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revoke Approvals — QF Tools</title>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <style>
+    .coming-soon {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .coming-soon h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+    .coming-soon p {
+      color: var(--body);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-size: 0.88rem;
+    }
+    .feature-list {
+      list-style: none;
+      max-width: 400px;
+      margin: 30px auto 0;
+      text-align: left;
+    }
+    .feature-list li {
+      padding: 8px 0;
+      color: var(--body);
+      font-size: 0.88rem;
+    }
+    .feature-list li::before {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 12px;
+      vertical-align: middle;
+    }
+    .fee-note {
+      margin-top: 25px;
+      background: var(--accent-ghost);
+      border: 1px solid var(--accent-dim);
+      border-radius: 10px;
+      padding: 16px 20px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .fee-note p {
+      font-size: 0.82rem;
+      color: var(--body);
+      line-height: 1.5;
+    }
+    .fee-note strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <h1>Revoke <span>Approvals</span></h1>
+      <p class="subtitle">Review and revoke token approvals on QF Network</p>
+    </div>
+
+    <div class="coming-soon">
+      <span class="badge badge-accent" style="font-size: 0.82rem; padding: 6px 16px;">Coming Soon</span>
+      <h2 style="margin-top: 20px;">Token Approval Manager</h2>
+      <p>When you interact with a dApp, you often grant it permission to spend your tokens. If that contract is compromised, your tokens are at risk. Review and revoke approvals you no longer need.</p>
+
+      <ul class="feature-list">
+        <li>Connect wallet to view all active approvals</li>
+        <li>See which contracts can spend your tokens</li>
+        <li>Revoke individual approvals with one click</li>
+        <li>Approval history and risk indicators</li>
+      </ul>
+
+      <div class="fee-note">
+        <p><strong>Service fee:</strong> A small QF fee applies per revoke transaction. A portion is burned, the remainder supports QF Tools development. Fee is adjustable as QF value changes.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-tagline">Built by the community, for the community</div>
+    <a href="/">QF Tools</a> &mdash; Independent project, not affiliated with QF Network team
+  </footer>
+
+  <script src="../shared/nav.js"></script>
+</body>
+</html>

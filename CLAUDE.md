@@ -52,21 +52,42 @@ QF Tools is a suite of free community tools for QF Network, hosted on GitHub Pag
 
 ### Tools
 
-| Tool | Path | Status | Description |
-|------|------|--------|-------------|
-| Explorer | `/explorer/` | Live | Wallet transaction history lookup |
-| Token Directory | `/tokens/` | Built | Token listing with disclaimer — listing is NOT endorsement |
-| Gas Station | `/gas/` | Built | Real-time gas prices |
-| Contract Verifier | `/verify/` | Scaffolded | Source code verification against deployed bytecode |
-| Token Sniffer | `/sniffer/` | Scaffolded | Automated safety scores — NOT an audit |
+### Visible on site (in nav and landing page)
 
-### Token Sniffer — Important Wording Rules
+| Tool | Path | Status | Cost |
+|------|------|--------|------|
+| Explorer | `/explorer/` | Live | Free |
+| Token Directory | `/tokens/` | Built | Free |
+| Gas Station | `/gas/` | Built | Free |
 
-- NEVER call it an "audit" — it is an "automated safety score" or "automated analysis"
+### Hidden (built but not linked — accessible by direct URL)
+
+| Tool | Path | Status | Cost |
+|------|------|--------|------|
+| Contract Verifier | `/verify/` | Scaffolded | Free |
+| Token Scout | `/scout/` | Scaffolded | Free scan, paid verified badge |
+| Portfolio Tracker | `/portfolio/` | Scaffolded | Free |
+| Pool Explorer | `/pools/` | Scaffolded (24hr delay on new pairs) | Free |
+| Revoke Approvals | `/revoke/` | Scaffolded | Small QF fee (adjustable) |
+| Network Stats | `/stats/` | Scaffolded | Free |
+| Validator Dashboard | `/validators/` | Scaffolded | Free |
+
+### Long-term vision: evolve into DexScreener-style platform for QF Network
+
+### Token Scout — Important Wording Rules
+
+- NEVER call it an "audit" — it is an "automated analysis" or "automated contract score"
+- NEVER use the word "safe" or "safety" — we provide information, not guarantees
 - Free tier: basic automated checks available to everyone
-- Paid tier: QF Tools Verified badge — developers pay in QF (burned) to show confidence
+- Paid tier: QF Tools Verified badge — developers pay in QF, a portion burned, remainder funds development
 - A verified badge means "passed automated checks and developer staked QF" — nothing more
 - Every page must include disclaimer: not a security audit, not financial advice, DYOR
+
+### Pool Explorer — Delay Rule
+
+- New pairs are shown only after 24 hours — this is non-negotiable
+- Frame as "we verify pairs are active before listing"
+- Never show cross-pool price comparisons (protects arb bot edge)
 
 ### Backend (Hetzner VM — NOT in this repo)
 

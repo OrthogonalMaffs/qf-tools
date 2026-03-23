@@ -1,11 +1,18 @@
 // Shared navigation component for QF Tools
+// Only visible tools are listed here — hidden tools are accessible by direct URL
 (function () {
   const pages = [
     { name: "Explorer", path: "/explorer/" },
     { name: "Tokens", path: "/tokens/" },
     { name: "Gas", path: "/gas/" },
-    { name: "Verify", path: "/verify/" },
-    { name: "Sniffer", path: "/sniffer/" },
+    // Hidden until ready:
+    // { name: "Verify", path: "/verify/" },
+    // { name: "Scout", path: "/scout/" },
+    // { name: "Portfolio", path: "/portfolio/" },
+    // { name: "Pools", path: "/pools/" },
+    // { name: "Revoke", path: "/revoke/" },
+    // { name: "Stats", path: "/stats/" },
+    // { name: "Validators", path: "/validators/" },
   ];
 
   const current = window.location.pathname;
