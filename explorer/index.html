@@ -36,6 +36,11 @@
       font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
       font-size: 0.78rem;
     }
+    .tx-method {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.78rem;
+      color: var(--accent);
+    }
     .results-header {
       display: flex;
       justify-content: space-between;
@@ -44,8 +49,43 @@
     }
     .results-header h2 { font-size: 1.05rem; }
     .results-count { color: var(--muted); font-size: 0.82rem; }
+    .account-card {
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .account-label { color: var(--muted); font-size: 0.85rem; }
+    .account-value {
+      font-weight: 600;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 8px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+    .section-hidden { display: none; }
     @media (max-width: 600px) {
       .tx-row { flex-direction: column; align-items: flex-start; }
+      .account-row { flex-direction: column; gap: 2px; }
     }
   </style>
 </head>
@@ -53,7 +93,7 @@
   <div class="container">
     <div class="page-header">
       <h1><span>QF</span> Explorer</h1>
-      <p class="subtitle">Look up transactions for any wallet on QF Network</p>
+      <p class="subtitle">Look up any wallet on QF Network</p>
     </div>
 
     <div class="stats-bar">
@@ -62,8 +102,12 @@
         <div class="stat-value" id="last-block">--</div>
       </div>
       <div class="stat">
-        <div class="stat-label">Total Transactions</div>
-        <div class="stat-value" id="total-txs">--</div>
+        <div class="stat-label">Funded Accounts</div>
+        <div class="stat-value" id="funded-accounts">--</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Transfers</div>
+        <div class="stat-value" id="total-transfers">--</div>
       </div>
       <div class="stat">
         <div class="stat-label">Status</div>
@@ -72,12 +116,22 @@
     </div>
 
     <div class="search-box">
-      <input type="text" class="input" id="address-input" placeholder="Enter wallet address (0x...)" spellcheck="false" autocomplete="off">
+      <input type="text" class="input" id="address-input" placeholder="Enter wallet address (SS58 or 0x...)" spellcheck="false" autocomplete="off">
       <button class="btn" onclick="searchAddress()">Search</button>
-      <button class="btn btn-outline" onclick="connectWallet()">Connect Wallet</button>
     </div>
 
     <div id="results"></div>
+
+    <div id="recent-section">
+      <div class="tab-bar">
+        <div class="tab active" onclick="showTab('accounts')">Top Accounts</div>
+        <div class="tab" onclick="showTab('transfers')">Recent Transfers</div>
+        <div class="tab" onclick="showTab('extrinsics')">Recent Extrinsics</div>
+      </div>
+      <div id="tab-accounts"></div>
+      <div id="tab-transfers" class="section-hidden"></div>
+      <div id="tab-extrinsics" class="section-hidden"></div>
+    </div>
   </div>
 
   <footer>
@@ -91,12 +145,36 @@
     const input = document.getElementById("address-input");
     const resultsDiv = document.getElementById("results");
 
+    function truncAddr(addr) {
+      if (!addr) return "";
+      if (addr.length > 20) return addr.slice(0, 10) + "..." + addr.slice(-8);
+      return addr;
+    }
+
+    function formatQF(amount) {
+      const n = parseFloat(amount);
+      if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
+      if (n >= 1000) return (n / 1000).toFixed(2) + "K";
+      return n.toFixed(2);
+    }
+
+    function timeAgo(ts) {
+      const diff = Math.floor(Date.now() / 1000) - ts;
+      if (diff < 60) return diff + "s ago";
+      if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+      if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+      return Math.floor(diff / 86400) + "d ago";
+    }
+
+    // ── Stats ──
+
     async function loadStats() {
       try {
         const res = await fetch(`${API}/stats`);
         const data = await res.json();
         document.getElementById("last-block").textContent = Number(data.lastIndexedBlock).toLocaleString();
-        document.getElementById("total-txs").textContent = Number(data.totalTransactions).toLocaleString();
+        document.getElementById("funded-accounts").textContent = Number(data.fundedAccounts).toLocaleString();
+        document.getElementById("total-transfers").textContent = Number(data.totalTransfers).toLocaleString();
         document.getElementById("status").textContent = "Synced";
         document.getElementById("status").style.color = "var(--green)";
       } catch (e) {
@@ -105,87 +183,243 @@
       }
     }
 
+    // ── Search ──
+
     async function searchAddress() {
       const address = input.value.trim();
-      if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
-        resultsDiv.innerHTML = '<div class="error">Please enter a valid Ethereum address (0x...)</div>';
+      if (!address) return;
+
+      // Basic validation: SS58 (starts with digit/letter, 46-48 chars) or 0x (42 chars hex)
+      const isSS58 = /^[1-9A-HJ-NP-Za-km-z]{46,48}$/.test(address);
+      const isHex = /^0x[0-9a-fA-F]{40}$/.test(address);
+
+      if (!isSS58 && !isHex) {
+        resultsDiv.innerHTML = '<div class="error">Please enter a valid SS58 or 0x address</div>';
         return;
       }
 
       resultsDiv.innerHTML = '<div class="loading">Searching</div>';
+      document.getElementById("recent-section").style.display = "none";
 
       try {
-        const res = await fetch(`${API}/txs/${address}?limit=50`);
-        const data = await res.json();
+        // Fetch account balance and transactions
+        const [acctRes, txRes] = await Promise.all([
+          fetch(`${API}/account/${address}`),
+          fetch(`${API}/txs/${address}?limit=50`),
+        ]);
+        const acct = await acctRes.json();
+        const txData = await txRes.json();
 
-        if (data.transactions.length === 0) {
-          resultsDiv.innerHTML = `
-            <div class="empty-state">
-              <h3>No transactions found</h3>
-              <p style="margin-top: 8px;">This address has no indexed transactions yet.</p>
-              <p style="margin-top: 6px; font-size: 0.85rem;">The chain is new — transactions will appear here as they happen.</p>
+        let html = "";
+
+        // Account balance card
+        if (acct.found && acct.balance) {
+          const b = acct.balance;
+          html += `
+            <div class="card account-card">
+              <h3 style="margin-bottom: 12px;">Account Balance</h3>
+              <div class="account-row">
+                <span class="account-label">Address</span>
+                <span class="account-value" style="font-size: 0.75rem;">${b.address}</span>
+              </div>
+              <div class="account-row">
+                <span class="account-label">Free Balance</span>
+                <span class="account-value" style="color: var(--green);">${formatQF(b.freeQF)} QF</span>
+              </div>
+              <div class="account-row">
+                <span class="account-label">Reserved</span>
+                <span class="account-value">${formatQF(b.reservedQF)} QF</span>
+              </div>
+              <div class="account-row">
+                <span class="account-label">Total</span>
+                <span class="account-value" style="color: var(--accent);">${formatQF(b.totalQF)} QF</span>
+              </div>
+              <div class="account-row">
+                <span class="account-label">Nonce</span>
+                <span class="account-value">${b.nonce}</span>
+              </div>
             </div>`;
-          return;
+        } else {
+          html += `
+            <div class="card account-card">
+              <h3>Account not found</h3>
+              <p style="margin-top: 8px; color: var(--muted);">This address has no on-chain activity or balance.</p>
+            </div>`;
         }
 
-        const addrLower = address.toLowerCase();
-        let html = `
-          <div class="results-header">
-            <h2>Transactions</h2>
-            <span class="results-count">${data.count} result${data.count !== 1 ? 's' : ''}</span>
-          </div>`;
-
-        for (const tx of data.transactions) {
-          const isOut = tx.from === addrLower;
-          const isIn = tx.to === addrLower;
-          const isSelf = isOut && isIn;
-          const dirLabel = isSelf ? "Self" : isOut ? "Out" : "In";
-          const badgeClass = isSelf ? "badge-accent" : isOut ? "badge-red" : "badge-green";
-          const valueClass = isSelf ? "" : isOut ? "negative" : "positive";
-          const sign = isOut && !isSelf ? "-" : "+";
-          const time = new Date(tx.timestamp * 1000).toLocaleString();
-
+        // Transfers
+        if (txData.transfers && txData.transfers.count > 0) {
           html += `
-            <div class="card tx-card">
-              <div class="tx-row">
-                <span class="tx-hash">${tx.hash.slice(0, 18)}...${tx.hash.slice(-8)}</span>
-                <span>
-                  <span class="badge ${badgeClass}">${dirLabel}</span>
-                  <span class="tx-value ${valueClass}">${sign}${parseFloat(tx.valueQF).toFixed(4)} QF</span>
-                </span>
-              </div>
-              <div class="tx-details">
-                <span>Block ${tx.blockNumber.toLocaleString()} &middot; ${time}</span>
-                <span class="tx-addr">${isOut ? "To: " + (tx.to || "Contract Creation") : "From: " + tx.from}</span>
-              </div>
+            <div class="results-header">
+              <h2>Transfers</h2>
+              <span class="results-count">${txData.transfers.count} result${txData.transfers.count !== 1 ? "s" : ""}</span>
+            </div>`;
+
+          const addrNorm = txData.address;
+          for (const tx of txData.transfers.items) {
+            const isOut = tx.from === addrNorm;
+            const isIn = tx.to === addrNorm;
+            const isSelf = isOut && isIn;
+            const dirLabel = isSelf ? "Self" : isOut ? "Out" : "In";
+            const badgeClass = isSelf ? "badge-accent" : isOut ? "badge-red" : "badge-green";
+            const valueClass = isSelf ? "" : isOut ? "negative" : "positive";
+            const sign = isOut && !isSelf ? "-" : "+";
+            const time = new Date(tx.timestamp * 1000).toLocaleString();
+
+            html += `
+              <div class="card tx-card">
+                <div class="tx-row">
+                  <span class="tx-addr">${truncAddr(isOut ? tx.to : tx.from)}</span>
+                  <span>
+                    <span class="badge ${badgeClass}">${dirLabel}</span>
+                    <span class="tx-value ${valueClass}">${sign}${formatQF(tx.amountQF)} QF</span>
+                  </span>
+                </div>
+                <div class="tx-details">
+                  <span>Block ${tx.blockNumber.toLocaleString()} &middot; ${time}</span>
+                </div>
+              </div>`;
+          }
+        }
+
+        // Extrinsics
+        if (txData.extrinsics && txData.extrinsics.count > 0) {
+          html += `
+            <div class="results-header" style="margin-top: 20px;">
+              <h2>Extrinsics</h2>
+              <span class="results-count">${txData.extrinsics.count} result${txData.extrinsics.count !== 1 ? "s" : ""}</span>
+            </div>`;
+
+          for (const ext of txData.extrinsics.items) {
+            const statusClass = ext.success ? "badge-green" : "badge-red";
+            const statusLabel = ext.success ? "Success" : "Failed";
+            const time = new Date(ext.timestamp * 1000).toLocaleString();
+
+            html += `
+              <div class="card tx-card">
+                <div class="tx-row">
+                  <span class="tx-method">${ext.call}</span>
+                  <span class="badge ${statusClass}">${statusLabel}</span>
+                </div>
+                <div class="tx-details">
+                  <span>Block ${ext.blockNumber.toLocaleString()} &middot; ${time}</span>
+                  <span class="tx-hash">${ext.hash ? truncAddr(ext.hash) : ""}</span>
+                </div>
+              </div>`;
+          }
+        }
+
+        if ((!txData.transfers || txData.transfers.count === 0) &&
+            (!txData.extrinsics || txData.extrinsics.count === 0) &&
+            acct.found) {
+          html += `
+            <div class="empty-state">
+              <h3>No transactions yet</h3>
+              <p style="margin-top: 8px;">This account has a balance but no indexed transactions.</p>
             </div>`;
         }
 
         resultsDiv.innerHTML = html;
       } catch (e) {
-        resultsDiv.innerHTML = `<div class="error">Failed to fetch transactions: ${e.message}</div>`;
+        resultsDiv.innerHTML = `<div class="error">Failed to fetch: ${e.message}</div>`;
       }
     }
 
-    async function connectWallet() {
-      if (!window.ethereum) {
-        resultsDiv.innerHTML = '<div class="error">No wallet detected. Please install MetaMask or another Web3 wallet.</div>';
-        return;
-      }
+    // ── Tabs ──
+
+    function showTab(name) {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll("[id^='tab-']").forEach((t) => t.classList.add("section-hidden"));
+      event.target.classList.add("active");
+      document.getElementById("tab-" + name).classList.remove("section-hidden");
+    }
+
+    async function loadRecent() {
       try {
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        if (accounts.length > 0) {
-          input.value = accounts[0];
-          searchAddress();
+        // Top accounts
+        const acctRes = await fetch(`${API}/accounts?limit=20`);
+        const acctData = await acctRes.json();
+
+        let acctHtml = "";
+        if (acctData.accounts.length > 0) {
+          for (const a of acctData.accounts) {
+            acctHtml += `
+              <div class="card tx-card" style="cursor: pointer;" onclick="input.value='${a.address}'; searchAddress();">
+                <div class="tx-row">
+                  <span class="tx-addr">${truncAddr(a.address)}</span>
+                  <span class="tx-value" style="color: var(--accent);">${formatQF(a.totalQF)} QF</span>
+                </div>
+                <div class="tx-details">
+                  <span>Free: ${formatQF(a.freeQF)} QF &middot; Reserved: ${formatQF(a.reservedQF)} QF</span>
+                  <span>Nonce: ${a.nonce}</span>
+                </div>
+              </div>`;
+          }
+        } else {
+          acctHtml = '<div class="empty-state"><p>No accounts indexed yet</p></div>';
         }
+        document.getElementById("tab-accounts").innerHTML = acctHtml;
+
+        // Recent transfers
+        const txRes = await fetch(`${API}/txs?limit=20`);
+        const txData = await txRes.json();
+
+        let txHtml = "";
+        if (txData.transfers && txData.transfers.items.length > 0) {
+          for (const tx of txData.transfers.items) {
+            const time = new Date(tx.timestamp * 1000).toLocaleString();
+            txHtml += `
+              <div class="card tx-card">
+                <div class="tx-row">
+                  <span class="tx-addr">${truncAddr(tx.from)} &rarr; ${truncAddr(tx.to)}</span>
+                  <span class="tx-value" style="color: var(--accent);">${formatQF(tx.amountQF)} QF</span>
+                </div>
+                <div class="tx-details">
+                  <span>Block ${tx.blockNumber.toLocaleString()} &middot; ${time}</span>
+                </div>
+              </div>`;
+          }
+        } else {
+          txHtml = '<div class="empty-state"><p>No transfers indexed yet</p></div>';
+        }
+        document.getElementById("tab-transfers").innerHTML = txHtml;
+
+        // Recent extrinsics
+        let extHtml = "";
+        if (txData.extrinsics && txData.extrinsics.items.length > 0) {
+          for (const ext of txData.extrinsics.items) {
+            const statusClass = ext.success ? "badge-green" : "badge-red";
+            const time = new Date(ext.timestamp * 1000).toLocaleString();
+            extHtml += `
+              <div class="card tx-card">
+                <div class="tx-row">
+                  <span class="tx-method">${ext.call}</span>
+                  <span>
+                    <span class="badge ${statusClass}">${ext.success ? "OK" : "Fail"}</span>
+                    <span class="tx-addr">${truncAddr(ext.signer)}</span>
+                  </span>
+                </div>
+                <div class="tx-details">
+                  <span>Block ${ext.blockNumber.toLocaleString()} &middot; ${time}</span>
+                </div>
+              </div>`;
+          }
+        } else {
+          extHtml = '<div class="empty-state"><p>No extrinsics indexed yet</p></div>';
+        }
+        document.getElementById("tab-extrinsics").innerHTML = extHtml;
       } catch (e) {
-        resultsDiv.innerHTML = `<div class="error">Wallet connection failed: ${e.message}</div>`;
+        console.error("Failed to load recent:", e);
       }
     }
+
+    // ── Init ──
 
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") searchAddress(); });
     loadStats();
+    loadRecent();
     setInterval(loadStats, 30000);
+    setInterval(loadRecent, 60000);
   </script>
 </body>
 </html>
