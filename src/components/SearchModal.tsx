@@ -156,7 +156,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                                 : 'hover:bg-white/[0.02]'
                             }`}
                           >
-                            <GradientAvatar address={account.address} size={28} />
+                            <GradientAvatar address={account.address} size={28} name={account.name} />
                             <div className="flex flex-col min-w-0">
                               {account.name ? (
                                 <>

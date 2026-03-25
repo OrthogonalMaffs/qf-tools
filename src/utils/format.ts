@@ -9,9 +9,12 @@ export function formatQF(amount: string | number): string {
   }).format(num);
 }
 
-export function truncateAddress(address: string): string {
+export function truncateAddress(address: string, short = false): string {
   if (!address || address.length < 10) return address;
-  return `${address.slice(0, 6)}...${address.slice(-6)}`;
+  if (short) {
+    return `${address.slice(0, 4)}…${address.slice(-4)}`;
+  }
+  return `${address.slice(0, 6)}…${address.slice(-6)}`;
 }
 
 export function relativeTime(timestamp: number): string {

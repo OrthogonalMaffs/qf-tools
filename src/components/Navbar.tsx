@@ -49,8 +49,8 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4 pointer-events-none">
-      <div ref={menuRef} className="pointer-events-auto relative">
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-10 md:px-4 pointer-events-none">
+      <div ref={menuRef} className="pointer-events-auto relative w-full md:w-auto">
         {/* ───── Main pill ───── */}
         <nav className="bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] rounded-2xl px-4 md:px-6 h-12 flex items-center shadow-[0_0_40px_rgba(0,0,0,0.3)]">
           {/* Wordmark — always visible */}
@@ -93,7 +93,7 @@ export function Navbar() {
           <div className="flex-1" />
 
           {/* Desktop divider */}
-          <div className="hidden md:block w-px h-4 bg-white/[0.06] mr-4" />
+          <div className="hidden md:block w-px h-4 bg-white/[0.06] ml-6 mr-6" />
 
           {/* Search trigger — always visible */}
           <button
