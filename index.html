@@ -1,116 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QF Tools — Community Tools for QF Network</title>
-  <link rel="stylesheet" href="shared/styles.css">
-  <style>
-    .hero {
-      text-align: center;
-      padding: 60px 20px 20px;
-    }
-    .hero h1 {
-      font-size: 2.8rem;
-      letter-spacing: -1px;
-    }
-    .hero .subtitle {
-      font-size: 1rem;
-      margin-top: 10px;
-      color: var(--body);
-    }
-    .hero .community-tag {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--accent);
-      background: var(--accent-dim);
-      letter-spacing: 0.3px;
-    }
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 14px;
-      margin-top: 35px;
-    }
-    .tool-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 26px;
-      text-decoration: none;
-      color: var(--text);
-      transition: all 0.25s;
-    }
-    .tool-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-    .tool-card h3 {
-      font-size: 1.05rem;
-      margin-bottom: 8px;
-      letter-spacing: -0.2px;
-    }
-    .tool-card p {
-      color: var(--body);
-      font-size: 0.83rem;
-      line-height: 1.5;
-    }
-    .tool-card .tag {
-      display: inline-block;
-      margin-top: 14px;
-      font-size: 0.68rem;
-      padding: 3px 10px;
-      border-radius: 5px;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.4px;
-    }
-    .tag-free { background: rgba(16, 185, 129, 0.15); color: var(--green); }
-    .tag-coming { background: var(--accent-dim); color: var(--accent); }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="hero">
-      <h1><span>QF</span> Tools</h1>
-      <p class="subtitle">Free, independent tools for QF Network</p>
-      <div class="community-tag">Built by the community, for the community</div>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QFTools — Explorer for QF Network</title>
+    <meta name="description" content="The human-readable layer of QF Network. Search accounts, track burns, explore activity." />
 
-    <div class="tools-grid">
-      <a href="explorer/" class="tool-card">
-        <h3>Explorer</h3>
-        <p>Look up the last 50 transactions for any wallet address on QF Network.</p>
-        <span class="tag tag-free">Free</span>
-      </a>
+    <meta property="og:title" content="QFTools — Explorer for QF Network" />
+    <meta property="og:description" content="The human-readable layer of QF Network." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:url" content="https://qftools.xyz" />
+    <meta property="og:type" content="website" />
 
-      <a href="tokens/" class="tool-card">
-        <h3>Token Directory</h3>
-        <p>Browse tokens deployed on QF Network. Contract addresses, decimals, and details.</p>
-        <span class="tag tag-free">Free</span>
-      </a>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="QFTools — Explorer for QF Network" />
+    <meta name="twitter:description" content="The human-readable layer of QF Network." />
+    <meta name="twitter:image" content="/og-image.png" />
 
-      <a href="gas/" class="tool-card">
-        <h3>Gas Station</h3>
-        <p>Real-time gas prices on QF Network with historical data.</p>
-        <span class="tag tag-free">Free</span>
-      </a>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0A0A0A" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="canonical" href="https://qftools.xyz/" />
 
-      <!-- More tools in development — will appear here when ready -->
-    </div>
-  </div>
-
-  <footer>
-    <div class="footer-tagline">Built by the community, for the community</div>
-    QF Tools is an independent project. Not affiliated with the QF Network team.<br>
-    Not financial advice &mdash; Always DYOR
-  </footer>
-
-  <script src="shared/nav.js"></script>
-</body>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="bg-[#0A0A0A] text-white antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
