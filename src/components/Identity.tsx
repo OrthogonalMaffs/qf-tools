@@ -9,6 +9,8 @@ interface IdentityProps {
   showAvatar?: boolean;
   size?: number;
   className?: string;
+  /** Max chars for .qf base name before truncating. Default: false (no truncation) */
+  truncateName?: number | false;
 }
 
 export function Identity({ 
@@ -16,21 +18,30 @@ export function Identity({
   name, 
   showAvatar = true, 
   size = 24, 
-  className = '' 
+  className = '',
+  truncateName = false,
 }: IdentityProps) {
   if (name) {
     return (
       <motion.span 
-        className={`inline-flex items-center gap-2 ${className}`}
+        className={`inline-flex items-center gap-1.5 min-w-0 ${className}`}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.15 }}
       >
-        {showAvatar && <GradientAvatar address={address} size={size} />}
-        <QFName name={name} className={`font-body font-medium text-white ${className}`} />
+        {showAvatar && <GradientAvatar address={address} size={size} className="flex-shrink-0" />}
+        <QFName 
+          name={name} 
+          truncate={truncateName}
+          className="font-body font-medium text-white truncate" 
+        />
       </motion.span>
     );
   }
   
-  return <TruncatedAddress address={address} className={className} />;
+  return (
+    <span className={`inline-flex items-center min-w-0 ${className}`}>
+      <TruncatedAddress address={address} />
+    </span>
+  );
 }

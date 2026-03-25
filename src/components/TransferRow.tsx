@@ -17,29 +17,34 @@ export function TransferRow({ transfer, className = '' }: TransferRowProps) {
       whileHover={{ x: 2 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <Link to={`/explorer/${transfer.from}`} className="hover:opacity-80 transition-opacity">
+      {/* Main row: sender → recipient on the left, amount + burn on the right */}
+      <div className="flex items-center justify-between gap-3">
+        {/* Identities */}
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <Link to={`/explorer/${transfer.fromName || transfer.from}`} className="min-w-0 hover:opacity-80 transition-opacity">
             <Identity 
               address={transfer.from} 
               name={transfer.fromName} 
               showAvatar={true} 
-              size={24} 
+              size={24}
+              truncateName={8}
             />
           </Link>
-          <span className="text-white/30 mx-2">→</span>
-          <Link to={`/explorer/${transfer.to}`} className="hover:opacity-80 transition-opacity">
+          <span className="text-white/30 mx-1 flex-shrink-0">→</span>
+          <Link to={`/explorer/${transfer.toName || transfer.to}`} className="min-w-0 hover:opacity-80 transition-opacity">
             <Identity 
               address={transfer.to} 
               name={transfer.toName} 
               showAvatar={true} 
-              size={24} 
+              size={24}
+              truncateName={8}
             />
           </Link>
         </div>
         
-        <div className="flex items-center gap-2">
-          <span className="font-body font-semibold text-[15px] text-white text-right">
+        {/* Amount + burn badge */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="font-body font-semibold text-[14px] sm:text-[15px] text-white whitespace-nowrap">
             {formatQF(transfer.amountQF)} <span className="text-white/50">QF</span>
           </span>
           {transfer.isQFPayTransfer && transfer.burnAmount && (
@@ -48,7 +53,8 @@ export function TransferRow({ transfer, className = '' }: TransferRowProps) {
         </div>
       </div>
       
-      <div className="mt-1 font-body text-xs text-white/30">
+      {/* Metadata row */}
+      <div className="mt-1 font-body text-xs text-white/30 whitespace-nowrap">
         Block {transfer.blockNumber} · {relativeTime(transfer.timestamp)}
       </div>
     </motion.div>

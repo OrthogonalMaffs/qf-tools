@@ -14,18 +14,18 @@ export function StatsLine() {
   }
 
   return (
-    <div className="text-center font-body text-[13px] text-white/40">
+    <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1 font-body text-[13px] text-white/40">
       <span className="inline-flex items-center gap-1">
-        Block <NumberScroller value={data.lastIndexedBlock} className="font-mono-addr" />
+        Block <NumberScroller value={data.lastIndexedBlock} className="font-mono" />
       </span>
-      <span className="mx-2">·</span>
+      <span className="text-white/20">·</span>
       <span>{formatNumber(data.fundedAccounts)} accounts</span>
-      <span className="mx-2">·</span>
+      <span className="text-white/20">·</span>
       <span>{formatNumber(data.totalTransfers)} transfers</span>
-      <span className="mx-2">·</span>
-      <span className="inline-flex items-center gap-1">
-        <span className="w-1 h-1 bg-[#00D179] rounded-full animate-pulse"></span>
-        Synced
+      <span className="text-white/20">·</span>
+      <span className="inline-flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00D179] animate-pulse flex-shrink-0" />
+        <span className="text-[#00D179]">Synced</span>
       </span>
     </div>
   );

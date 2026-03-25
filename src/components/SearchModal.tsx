@@ -29,6 +29,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     : [];
 
   useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);

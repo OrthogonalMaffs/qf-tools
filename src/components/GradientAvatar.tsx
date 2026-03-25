@@ -13,8 +13,8 @@ export function GradientAvatar({ address, size = 24, className = '' }: GradientA
     <img
       src={avatarUrl}
       alt=""
-      className={`rounded-full ${className}`}
-      style={{ width: size, height: size }}
+      className={`rounded-full flex-shrink-0 ${className}`}
+      style={{ width: size, height: size, minWidth: size }}
     />
   );
 }

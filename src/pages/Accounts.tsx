@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useAccounts } from '../hooks/useAccounts';
 import { Identity, EmptyState, Skeleton, PageTransition } from '../components';
-import { formatQF, formatNumber } from '../utils/format';
+import { formatQF } from '../utils/format';
 
 export function Accounts() {
   const { data: accountsData, loading, error } = useAccounts(75);

@@ -15,7 +15,6 @@ export function enrichTransfers(transfers: Transfer[]): EnrichedTransfer[] {
   for (let i = 0; i < transfers.length; i++) {
     if (consumed.has(i)) continue;
     const tx = transfers[i];
-    const blockTxs = byBlock.get(tx.blockNumber) || [];
 
     // Is this a delivery FROM a router-like address (not to burn)?
     if (tx.to !== BURN_ADDRESS) {

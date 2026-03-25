@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { enrichTransfers } from '../utils/enrichTransfers';
-import type { TransfersResponse, EnrichedTransfer } from '../types';
+import type { EnrichedTransfer } from '../types';
 
 export function useTransfers(limit = 100, pollInterval = 60_000) {
   const [data, setData] = useState<EnrichedTransfer[]>([]);
