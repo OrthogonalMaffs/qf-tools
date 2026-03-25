@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
 import { useAccounts } from '../hooks/useAccounts';
-import { Identity, EmptyState, Skeleton, PageTransition } from '../components';
+import { Identity, EmptyState, Skeleton } from '../components';
 import { formatQF } from '../utils/format';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Accounts() {
   const { data: accountsData, loading, error } = useAccounts(75);
+  useDocumentTitle('QFTools — Accounts');
 
   const accounts = accountsData?.accounts || [];
   const maxBalance = accounts.length > 0 ? Math.max(...accounts.map(a => parseFloat(a.totalQF))) : 0;
@@ -25,7 +27,7 @@ export function Accounts() {
   };
 
   return (
-    <PageTransition>
+    <>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -133,6 +135,6 @@ export function Accounts() {
               ))}
           </motion.div>
         )}
-    </PageTransition>
+    </>
   );
 }

@@ -5,6 +5,8 @@ export { Identity } from './Identity';
 export { NumberScroller } from './NumberScroller';
 export { BurnBadge } from './BurnBadge';
 export { TransferRow } from './TransferRow';
+export { TransferDetailModal } from './TransferDetailModal';
+export { BurnDetailModal } from './BurnDetailModal';
 export { EmptyState } from './EmptyState';
 export { Skeleton } from './Skeleton';
 export { StatsLine } from './StatsLine';

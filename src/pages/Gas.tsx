@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { EmptyState, PageTransition } from '../components';
+import { EmptyState } from '../components';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Gas() {
+  useDocumentTitle('QFTools — Gas Tracker');
   return (
-    <PageTransition>
+    <>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -26,6 +28,6 @@ export function Gas() {
         title="Collecting gas data"
         description="Real-time gas prices will appear here as data accumulates."
       />
-    </PageTransition>
+    </>
   );
 }

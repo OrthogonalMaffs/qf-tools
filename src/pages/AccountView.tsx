@@ -1,24 +1,25 @@
 import { motion } from 'framer-motion';
 import { useParams } from 'react-router-dom';
-import { GradientAvatar, QFName, TruncatedAddress, TransferRow, EmptyState, Skeleton, PageTransition } from '../components';
+import { GradientAvatar, QFName, TruncatedAddress, TransferRow, EmptyState, Skeleton } from '../components';
 import { useCopy } from '../hooks/useCopy';
 import { useAccount } from '../hooks/useAccount';
-import { useTransfers } from '../hooks/useTransfers';
-import { formatQF } from '../utils/format';
+import { useAccountTransfers } from '../hooks/useAccountTransfers';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { formatQF, truncateAddress } from '../utils/format';
 
 export function AccountView() {
   const { id } = useParams<{ id: string }>();
   const { copied, copy } = useCopy();
   const { data: accountData, loading, error } = useAccount(id || '');
-  const { data: transfers, loading: transfersLoading } = useTransfers(50);
-
-  const accountTransfers = transfers?.filter(
-    transfer => transfer.from === id || transfer.to === id
-  ) || [];
+  const { data: accountTransfers, loading: transfersLoading, error: transfersError } = useAccountTransfers(id || '', 50);
+  const pageTitle = accountData?.found
+    ? `${accountData.balance.name || truncateAddress(accountData.balance.address)} — QFTools` 
+    : 'Account — QFTools';
+  useDocumentTitle(pageTitle);
 
   if (!id) {
     return (
-      <PageTransition>
+      <>
         <EmptyState
           icon={
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -30,13 +31,13 @@ export function AccountView() {
           title="Invalid account"
           description="Please provide a valid address or .qf name."
         />
-      </PageTransition>
+      </>
     );
   }
 
   if (loading) {
     return (
-      <PageTransition>
+      <>
         {/* Hero Section Skeleton */}
         <div className="text-center pt-12 pb-8">
           <Skeleton width={80} height={80} className="rounded-full mx-auto mb-4" />
@@ -50,13 +51,13 @@ export function AccountView() {
           <Skeleton width={200} height={36} className="mx-auto mb-2" />
           <Skeleton width={150} height={13} className="mx-auto" />
         </div>
-      </PageTransition>
+      </>
     );
   }
 
   if (error || !accountData?.found) {
     return (
-      <PageTransition>
+      <>
         <EmptyState
           icon={
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -68,14 +69,14 @@ export function AccountView() {
           title="Account not found"
           description="This address has no on-chain activity."
         />
-      </PageTransition>
+      </>
     );
   }
 
   const account = accountData.balance;
 
   return (
-    <PageTransition>
+    <>
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -205,6 +206,18 @@ export function AccountView() {
                 </div>
               ))}
             </div>
+          ) : transfersError ? (
+            <EmptyState
+              icon={
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M12 8v4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                  <circle cx="12" cy="15" r="1" fill="currentColor"/>
+                </svg>
+              }
+              title="Unable to load activity"
+              description="Please check your connection"
+            />
           ) : accountTransfers.length === 0 ? (
             <EmptyState
               icon={
@@ -224,6 +237,6 @@ export function AccountView() {
             </div>
           )}
         </motion.div>
-    </PageTransition>
+    </>
   );
 }

@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import { useBurns } from '../hooks/useBurns';
-import { Identity, EmptyState, Skeleton, PageTransition } from '../components';
+import { Identity, EmptyState, Skeleton, BurnDetailModal } from '../components';
 import { formatQF, relativeTime } from '../utils/format';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import type { BurnEvent } from '../types';
 
 // Protocol color mapping for burn source pills
 const PROTOCOL_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -19,13 +22,15 @@ function getProtocolConfig(source: string) {
 
 export function Burn() {
   const { data: burns, loading, error } = useBurns();
+  useDocumentTitle('QFTools — Burn Dashboard');
 
   const totalBurned = burns?.reduce((sum, burn) => sum + burn.amount, 0) || 0;
   const qfpayBurned = burns?.filter(b => b.source === 'qfpay').reduce((sum, burn) => sum + burn.amount, 0) || 0;
   const qnsBurned = burns?.filter(b => b.source === 'qns').reduce((sum, burn) => sum + burn.amount, 0) || 0;
+  const [selectedBurn, setSelectedBurn] = useState<{ burn: BurnEvent; protocol: { label: string; color: string; bg: string } } | null>(null);
 
   return (
-    <PageTransition>
+    <>
       {/* Hero Counter */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -33,23 +38,32 @@ export function Burn() {
         transition={{ duration: 0.6 }}
         className="text-center pt-16 pb-8"
       >
-        <div className="font-display text-[48px] font-bold text-white">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={totalBurned}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {formatQF(totalBurned)}
-            </motion.div>
-          </AnimatePresence>
-          <span className="text-white/40 font-body text-lg ml-1">QF</span>
-        </div>
-        <div className="font-body text-sm text-white/40 mt-2">
-          QF burned forever
-        </div>
+        {loading ? (
+          <div className="flex flex-col items-center gap-2">
+            <Skeleton width={220} height={48} className="rounded-lg" />
+            <Skeleton width={120} height={16} className="rounded" />
+          </div>
+        ) : (
+          <>
+            <div className="font-display text-[48px] font-bold text-white">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={totalBurned}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {formatQF(totalBurned)}
+                </motion.div>
+              </AnimatePresence>
+              <span className="text-white/40 font-body text-lg ml-1">QF</span>
+            </div>
+            <div className="font-body text-sm text-white/40 mt-2">
+              QF burned forever
+            </div>
+          </>
+        )}
       </motion.div>
 
       {/* Source Cards */}
@@ -59,29 +73,46 @@ export function Burn() {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4"
       >
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-6 border-t-2 border-t-[#0052FF]">
-          <div className="font-body text-xs text-white/40 uppercase tracking-wider mb-2">
-            QFPAY TRANSFERS
-          </div>
-          <div className="font-display text-2xl font-semibold text-white mt-2">
-            {formatQF(qfpayBurned)} QF
-          </div>
-          <div className="font-body text-xs text-white/30 mt-1">
-            0.1% of every transfer
-          </div>
-        </div>
+        {loading ? (
+          <>
+            <div className="bg-[#111111] border border-white/5 rounded-xl p-6">
+              <Skeleton width={140} height={12} className="rounded mb-3" />
+              <Skeleton width={180} height={28} className="rounded mb-2" />
+              <Skeleton width={160} height={12} className="rounded" />
+            </div>
+            <div className="bg-[#111111] border border-white/5 rounded-xl p-6">
+              <Skeleton width={140} height={12} className="rounded mb-3" />
+              <Skeleton width={180} height={28} className="rounded mb-2" />
+              <Skeleton width={160} height={12} className="rounded" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="bg-[#111111] border border-white/5 rounded-xl p-6 border-t-2 border-t-[#0052FF]">
+              <div className="font-body text-xs text-white/40 uppercase tracking-wider mb-2">
+                QFPAY TRANSFERS
+              </div>
+              <div className="font-display text-2xl font-semibold text-white mt-2">
+                {formatQF(qfpayBurned)} QF
+              </div>
+              <div className="font-body text-xs text-white/30 mt-1">
+                0.1% of every transfer
+              </div>
+            </div>
 
-        <div className="bg-[#111111] border border-white/5 rounded-xl p-6 border-t-2 border-t-[#00D179]">
-          <div className="font-body text-xs text-white/40 uppercase tracking-wider mb-2">
-            QNS REGISTRATIONS
-          </div>
-          <div className="font-display text-2xl font-semibold text-white mt-2">
-            {formatQF(qnsBurned)} QF
-          </div>
-          <div className="font-body text-xs text-white/30 mt-1">
-            5% of every registration
-          </div>
-        </div>
+            <div className="bg-[#111111] border border-white/5 rounded-xl p-6 border-t-2 border-t-[#00D179]">
+              <div className="font-body text-xs text-white/40 uppercase tracking-wider mb-2">
+                QNS REGISTRATIONS
+              </div>
+              <div className="font-display text-2xl font-semibold text-white mt-2">
+                {formatQF(qnsBurned)} QF
+              </div>
+              <div className="font-body text-xs text-white/30 mt-1">
+                5% of every registration
+              </div>
+            </div>
+          </>
+        )}
       </motion.div>
 
       {/* Burn Chart */}
@@ -95,41 +126,11 @@ export function Burn() {
           <h3 className="font-display text-lg font-semibold text-white mb-4">
             Burn History
           </h3>
-          <div className="h-64 flex items-center justify-center">
-            {loading ? (
-              <Skeleton width="100%" height="100%" />
-            ) : burns && burns.length > 0 ? (
-              <svg width="100%" height="100%" viewBox="0 0 400 200" className="overflow-visible">
-                <defs>
-                  <linearGradient id="burnGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#E85D25" stopOpacity="0.2" />
-                    <stop offset="100%" stopColor="#E85D25" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d={`M 0,200 ${burns.map((burn, i) => {
-                    const x = (i / burns.length) * 400;
-                    const y = 200 - (burn.amount / Math.max(...burns.map(b => b.amount))) * 180;
-                    return `L ${x},${y}`;
-                  }).join(' ')} L 400,200 Z`}
-                  fill="url(#burnGradient)"
-                />
-                <path
-                  d={`M 0,200 ${burns.map((burn, i) => {
-                    const x = (i / burns.length) * 400;
-                    const y = 200 - (burn.amount / Math.max(...burns.map(b => b.amount))) * 180;
-                    return `L ${x},${y}`;
-                  }).join(' ')}`}
-                  fill="none"
-                  stroke="#E85D25"
-                  strokeWidth="2"
-                />
-              </svg>
-            ) : (
-              <div className="text-center text-white/30">
-                No burn data available
-              </div>
-            )}
+          <div className="h-48 flex flex-col items-center justify-center gap-2">
+            <Flame size={24} className="text-white/10" />
+            <span className="font-body text-sm text-white/20">
+              Chart available soon
+            </span>
           </div>
         </div>
       </motion.div>
@@ -188,58 +189,78 @@ export function Burn() {
             {burns?.slice(0, 20).map((burn, index) => {
               const protocol = getProtocolConfig(burn.source);
               return (
-                <div 
-                  key={`${burn.id}-${index}`} 
-                  className="py-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors duration-200 rounded-lg"
-                >
-                  {/* Three-column layout: amount | protocol | account */}
-                  <div className="flex items-center justify-between gap-4">
-                    {/* Left: flame + amount */}
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Flame size={15} className="text-[#E85D25] flex-shrink-0" />
-                      <span className="font-body font-semibold text-[15px] md:text-[16px] text-white whitespace-nowrap">
-                        {formatQF(burn.amount)} <span className="text-white/40 font-normal">QF</span>
+                <div key={`${burn.id}-${index}`}>
+                  {/* ── Desktop row (sm+) ── */}
+                  <div className="hidden sm:block py-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors duration-200 rounded-lg">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Flame size={15} className="text-[#E85D25] flex-shrink-0" />
+                        <span className="font-body font-semibold text-[15px] md:text-[16px] text-white whitespace-nowrap">
+                          {formatQF(burn.amount)} <span className="text-white/40 font-normal">QF</span>
+                        </span>
+                      </div>
+                      <span
+                        className="font-body text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+                        style={{ color: protocol.color, backgroundColor: protocol.bg }}
+                      >
+                        {protocol.label}
+                      </span>
+                      <div className="flex items-center justify-end min-w-0 flex-1">
+                        {burn.triggerAccount ? (
+                          <Identity
+                            address={burn.triggerAccount}
+                            showAvatar={false}
+                            size={16}
+                            className="text-sm"
+                            truncateName={10}
+                            shortAddress
+                          />
+                        ) : (
+                          <span className="text-white/20 text-sm">—</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-1.5 font-body text-xs text-white/25">
+                      Block {burn.block} · {relativeTime(Math.floor(new Date(burn.timestamp).getTime() / 1000))}
+                    </div>
+                  </div>
+
+                  {/* ── Mobile compact row (<sm) ── */}
+                  <button
+                    onClick={() => setSelectedBurn({ burn, protocol })}
+                    className="sm:hidden w-full text-left py-3.5 border-b border-white/5 active:bg-white/[0.03] transition-colors duration-150"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Flame size={13} className="text-[#E85D25] flex-shrink-0" />
+                        <span className="font-body font-semibold text-[14px] text-white whitespace-nowrap">
+                          {formatQF(burn.amount)}
+                        </span>
+                      </div>
+                      <span
+                        className="font-body text-[11px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0"
+                        style={{ color: protocol.color, backgroundColor: protocol.bg }}
+                      >
+                        {protocol.label}
+                      </span>
+                      <span className="font-body text-xs text-white/20 flex-shrink-0">
+                        {relativeTime(Math.floor(new Date(burn.timestamp).getTime() / 1000))}
                       </span>
                     </div>
-
-                    {/* Center: protocol pill */}
-                    <span 
-                      className="font-body text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap flex-shrink-0"
-                      style={{ 
-                        color: protocol.color, 
-                        backgroundColor: protocol.bg,
-                      }}
-                    >
-                      {protocol.label}
-                    </span>
-
-                    {/* Right: triggering account — right aligned */}
-                    <div className="flex items-center justify-end min-w-0 flex-1">
-                      {burn.triggerAccount ? (
-                        <Identity 
-                          address={burn.triggerAccount} 
-                          showAvatar={false} 
-                          size={16} 
-                          className="text-sm"
-                          truncateName={10}
-                          shortAddress
-                        />
-                      ) : (
-                        <span className="text-white/20 text-sm">—</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Metadata */}
-                  <div className="mt-1.5 font-body text-xs text-white/25">
-                    Block {burn.block} · {relativeTime(Math.floor(new Date(burn.timestamp).getTime() / 1000))}
-                  </div>
+                  </button>
                 </div>
               );
             })}
           </div>
         )}
       </motion.div>
-    </PageTransition>
+
+      {/* Burn detail modal — mobile */}
+      <BurnDetailModal
+        burn={selectedBurn?.burn ?? null}
+        protocol={selectedBurn?.protocol ?? null}
+        onClose={() => setSelectedBurn(null)}
+      />
+    </>
   );
 }

@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
-import { EmptyState, PageTransition } from '../components';
+import { EmptyState } from '../components';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Tokens() {
+  useDocumentTitle('QFTools — Token Directory');
   return (
-    <PageTransition>
+    <>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -28,6 +30,6 @@ export function Tokens() {
         title="No tokens yet"
         description="Tokens will appear here as they're deployed on QF Network."
       />
-    </PageTransition>
+    </>
   );
 }

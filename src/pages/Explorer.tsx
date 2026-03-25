@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { StatsLine } from '../components/StatsLine';
 import { SearchBar } from '../components/SearchBar';
 import { TransferRow } from '../components/TransferRow';
-import { EmptyState, Skeleton, PageTransition } from '../components';
+import { EmptyState, Skeleton } from '../components';
 import { useTransfers } from '../hooks/useTransfers';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -23,9 +24,10 @@ const itemVariants = {
 
 export function Explorer() {
   const { data: transfers, loading, error } = useTransfers(30);
+  useDocumentTitle('QFTools — Explorer');
 
   return (
-    <PageTransition>
+    <>
       {/* Stats Line */}
       <div className="mb-8">
         <StatsLine />
@@ -103,6 +105,6 @@ export function Explorer() {
           </motion.div>
         )}
       </div>
-    </PageTransition>
+    </>
   );
 }
