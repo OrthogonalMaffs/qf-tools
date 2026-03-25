@@ -107,10 +107,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-              className="w-full max-w-[520px] bg-[#111111]/95 backdrop-blur-2xl border border-white/[0.08] rounded-2xl overflow-hidden pointer-events-auto"
+              className="w-full max-w-[520px] bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden pointer-events-auto shadow-[0_0_40px_rgba(0,0,0,0.3)]"
             >
               {/* Search input row */}
-              <div className="flex items-center h-14 px-4 border-b border-white/[0.05]">
+              <div className="flex items-center h-14 px-4 border-b border-white/[0.06]">
                 <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="text-white/30 shrink-0 mr-3">
                   <path
                     d="M7.333 12.667A5.333 5.333 0 107.333 2a5.333 5.333 0 000 10.667zM14 14l-2.9-2.9"
@@ -191,7 +191,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
               {/* Footer hint (when no query) */}
               {!query && (
-                <div className="px-4 py-3 border-t border-white/[0.03]">
+                <div className="px-4 py-3 border-t border-white/[0.06]">
                   <div className="flex items-center gap-4 text-[11px] font-body text-white/20">
                     <span className="flex items-center gap-1">
                       <kbd className="font-mono border border-white/[0.08] rounded px-1 py-px">↑</kbd>

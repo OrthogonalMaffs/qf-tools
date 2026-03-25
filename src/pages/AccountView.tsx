@@ -91,7 +91,7 @@ export function AccountView() {
             transition={{ duration: 0.4, delay: 0.1 }}
             className="mb-4"
           >
-            <GradientAvatar address={account.address} size={80} className="mx-auto" />
+            <GradientAvatar address={account.address} size={80} name={account.name} className="mx-auto" />
           </motion.div>
 
           {/* Name */}

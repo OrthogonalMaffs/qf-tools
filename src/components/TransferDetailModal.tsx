@@ -45,7 +45,7 @@ export function TransferDetailModal({ transfer, onClose }: Props) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 40 }}
               transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              className="w-full max-w-[400px] bg-[#111111]/95 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 pointer-events-auto"
+              className="w-full max-w-[400px] bg-white/[0.03] backdrop-blur-2xl border border-white/[0.06] rounded-2xl p-6 pointer-events-auto shadow-[0_0_40px_rgba(0,0,0,0.3)]"
             >
               {/* From */}
               <Link
