@@ -1,10 +1,13 @@
 export function formatQF(amount: string | number): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(num)) return '0.00';
-  
+
+  // Fewer decimals for larger amounts — readability over precision
+  const maxDecimals = num >= 1000 ? 2 : num >= 1 ? 4 : 6;
+
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 6,
+    maximumFractionDigits: maxDecimals,
     useGrouping: true,
   }).format(num);
 }

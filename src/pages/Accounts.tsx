@@ -1,14 +1,33 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAccounts } from '../hooks/useAccounts';
 import { Identity, EmptyState, Skeleton } from '../components';
 import { formatQF } from '../utils/format';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
+type SortField = 'total' | 'free' | 'transactions';
+
 export function Accounts() {
-  const { data: accountsData, loading, error } = useAccounts(75);
+  const { data: accountsData, loading, error } = useAccounts(200);
   useDocumentTitle('QFTools — Accounts');
 
-  const accounts = accountsData?.accounts || [];
+  const [sortBy, setSortBy] = useState<SortField>('total');
+  const [namedOnly, setNamedOnly] = useState(false);
+
+  const allAccounts = accountsData?.accounts || [];
+
+  // Filter
+  const filtered = namedOnly ? allAccounts.filter(a => a.name) : allAccounts;
+
+  // Sort
+  const accounts = [...filtered].sort((a, b) => {
+    switch (sortBy) {
+      case 'free': return parseFloat(b.freeQF) - parseFloat(a.freeQF);
+      case 'transactions': return (b.nonce || 0) - (a.nonce || 0);
+      default: return parseFloat(b.totalQF) - parseFloat(a.totalQF);
+    }
+  });
+
   const maxBalance = accounts.length > 0 ? Math.max(...accounts.map(a => parseFloat(a.totalQF))) : 0;
 
   const containerVariants = {
@@ -36,9 +55,38 @@ export function Accounts() {
         <h1 className="font-display text-[28px] font-semibold text-white pt-8 mb-1">
           Accounts
         </h1>
-        <p className="font-body text-sm text-white/40 mb-6">
+        <p className="font-body text-sm text-white/40 mb-4">
           All funded accounts on QF Network
         </p>
+
+        {/* Sort & Filter Controls */}
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+          {/* Sort toggles — per spec: subtle text toggles */}
+          <div className="flex items-center gap-4 text-[13px] font-medium">
+            <span className="text-white/30">Sort by</span>
+            {([['total', 'Total Balance'], ['free', 'Free Balance'], ['transactions', 'Transactions']] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setSortBy(key)}
+                className={`transition-colors ${sortBy === key ? 'text-white border-b border-white/50' : 'text-white/30 hover:text-white/60'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Named filter toggle */}
+          <button
+            onClick={() => setNamedOnly(!namedOnly)}
+            className={`text-[13px] font-medium px-3 py-1 rounded-full border transition-colors ${
+              namedOnly
+                ? 'border-[#00D179]/50 text-[#00D179] bg-[#00D179]/10'
+                : 'border-white/10 text-white/30 hover:text-white/60 hover:border-white/20'
+            }`}
+          >
+            .qf names only{namedOnly && ` (${accounts.length})`}
+          </button>
+        </div>
       </motion.div>
 
         {loading ? (
@@ -91,9 +139,7 @@ export function Accounts() {
             animate="visible"
             className="space-y-1"
           >
-            {accounts
-              .sort((a, b) => parseFloat(b.totalQF) - parseFloat(a.totalQF))
-              .map((account, index) => (
+            {accounts.map((account, index) => (
                 <motion.div
                   key={account.address}
                   variants={itemVariants}
@@ -118,7 +164,10 @@ export function Accounts() {
                     {/* Balance + Relative Bar */}
                     <div className="text-right">
                       <div className="font-body font-semibold text-white">
-                        {formatQF(account.totalQF)} <span className="text-white/50">QF</span>
+                        {sortBy === 'transactions'
+                          ? <>{account.nonce || 0} <span className="text-white/50">txns</span></>
+                          : <>{formatQF(sortBy === 'free' ? account.freeQF : account.totalQF)} <span className="text-white/50">QF</span></>
+                        }
                       </div>
                       {/* Relative bar */}
                       <div className="mt-1 w-32 h-1 rounded-full bg-white/10">
