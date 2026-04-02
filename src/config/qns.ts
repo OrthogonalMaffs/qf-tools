@@ -1,7 +1,7 @@
 // QNS Resolver contract config for read-only avatar lookups
 // The resolver stores text records (avatar, bio, twitter, etc.) keyed by namehash
 
-export const QNS_RESOLVER_ADDRESS = (import.meta.env.VITE_QNS_RESOLVER_ADDRESS || '0xd78e5b5779ed7bdf70dad0061fbeb189836022fb') as `0x${string}`;
+export const QNS_RESOLVER_ADDRESS = (import.meta.env.VITE_QNS_RESOLVER_ADDRESS || '0x276b7e9343c19bea29d32dd4a8f84e6d1c183111') as `0x${string}`;
 
 export const QF_ETH_RPC = 'https://archive.mainnet.qfnode.net/eth';
 

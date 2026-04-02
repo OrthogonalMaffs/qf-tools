@@ -9,17 +9,32 @@
 ## Architecture
 - Substrate WS RPC (wss://mainnet.qfnode.net) — NOT ETH RPC
 - Forward watcher: polls every 2 seconds for new blocks
-- Backward scanner: fills history towards genesis
+- Backward scanner: fills history towards genesis (batch size 25, concurrency 10)
 - Priority: HEAD > GAP > HISTORY (on restart, jumps to head, fills gap first)
 - 4GB heap limit (--max-old-space-size=4096)
+- Account snapshots: runs on boot + every 5 minutes (if indexer stays alive)
+- Shared ETH RPC helper: rpc.js (used by indexer, names, server)
+
+## Account Snapshot — Two Phases
+- Phase 1: `system.account.entries()` — all Substrate-native accounts. Uses `OriginalAccount` cache to set correct H160 when mapping exists, falls back to keccak(pubkey).
+- Phase 2: QNS H160s not in Phase 1 — queries `eth_getBalance` via ETH RPC. Balance-matches against existing Substrate accounts to avoid duplicates. Inserts truly new EVM-only accounts with H160 as address key.
+- KNOWN ISSUE: Unmapped accounts (no `map_account` call) may still duplicate. Needs Axe input.
+
+## Key Files (on Hetzner ~/qf-explorer/)
+- indexer.js — block processor + account snapshot
+- server.js — Express API
+- names.js — QNS name resolution (reverse resolve, forward resolve, cache)
+- rpc.js — shared ETH RPC helper (added 2026-03-29)
+- qns-decoder.js — QNS event decoder
+- db.js — SQLite schema + setup
 
 ## QNS Decoder
 - Decodes NameRegistered, NameRenewed, NameTransferred events from revive.ContractEmitted
 - Contract addresses (NEW as of 2026-03-28):
-  - Registry: 0x32d2023807a5374f228fd7d7c91d9e431709a455
-  - Registrar: 0x79d1b7425c8ad9cda83e3bb1c4e6730ff77b7854
-  - Resolver: 0xd5d12431b2956248861dbec5e8a9bc6023114e80
-- Old addresses (defunct): Registry 0x595888..., Registrar 0xe65856..., Resolver 0xd78e5b...
+  - Registry: 0xa2cfccb0b6d94b55d69ff90bcc2d1822150a16b5
+  - Registrar: 0x493a63a9b107b812ab3098cadaaa4abe86ad5bc5
+  - Resolver: 0x276b7e9343c19bea29d32dd4a8f84e6d1c183111
+- Old addresses (defunct): Gen1: Registry 0x595888..., Registrar 0xe65856..., Resolver 0xd78e5b... / Gen2: Registry 0x32d202..., Registrar 0x79d1b7..., Resolver 0xd5d124...
 - Uses labelHash (keccak of just the name), NOT ENS-style namehash for contract queries
 - Backfills from existing indexed ContractEmitted events on startup
 
@@ -41,12 +56,23 @@
 ## API Endpoints
 - GET /api/stats — totalExtrinsics, totalTransfers, fundedAccounts, lastIndexedBlock
 - GET /api/health — status check
-- GET /api/accounts?limit=200 — all funded accounts with .qf names
+- GET /api/accounts?limit=200 — all funded accounts with .qf names, sorted by balance desc
 - GET /api/txs?limit=100 — recent transfers + extrinsics
 - GET /api/account/:addressOrName — account detail (resolves .qf names via DB then contract)
 - GET /api/txs/:addressOrName?limit=100 — transfers for an address
+- GET /api/burns/summary — total burned, count, breakdown by source
+- GET /api/burns/history — time-bucketed burn data (day/week)
+- GET /api/gas — current gas price from ETH RPC
+- GET /api/events — recent non-system events
+- GET /api/resolve/:input — name↔address resolution
+
+## API Formatting
+- All balance fields (freeQF, reservedQF, totalQF, amountQF): 2 decimal places
+- Burn totals: 6 decimal places (small amounts would round to zero at 2dp)
+- Sorting uses CAST(free AS REAL) — not INTEGER (overflows on wei values)
 
 ## Name Resolution Priority
 1. Check qns_names table (fastest, no RPC)
 2. Forward resolve via contract call (RPC to resolver)
 3. Reverse resolve cache (warmed on startup, 10-min TTL)
+4. H160 addresses handled directly in resolveOne (no keccak derivation attempted)

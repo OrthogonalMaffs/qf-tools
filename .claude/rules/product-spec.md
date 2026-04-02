@@ -534,9 +534,9 @@ Every Account View URL generates a dynamic OG image for social sharing.
 
 | Contract | Address |
 |---|---|
-| QNS Registry | `0x595888...` |
-| QNS Resolver | `0xd78e5b...` |
-| QNS Registrar | `0xe65856...` |
+| QNS Registry | `0xa2cfccb0b6d94b55d69ff90bcc2d1822150a16b5` |
+| QNS Registrar | `0x493a63a9b107b812ab3098cadaaa4abe86ad5bc5` |
+| QNS Resolver | `0x276b7e9343c19bea29d32dd4a8f84e6d1c183111` |
 | QFPay Router | `0xfa0756c626bd7d91a14292aa99326a48b3e921e3` |
 | Burn Address | `0x000000000000000000000000000000000000dEaD` |
 

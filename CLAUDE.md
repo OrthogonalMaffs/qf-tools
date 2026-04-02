@@ -69,9 +69,9 @@ Repo: OrthogonalMaffs/qf-tools
 
 | Contract   | Address                                      |
 |------------|----------------------------------------------|
-| Registry   | `0x32d2023807a5374f228fd7d7c91d9e431709a455` |
-| Registrar  | `0x79d1b7425c8ad9cda83e3bb1c4e6730ff77b7854` |
-| Resolver   | `0xd5d12431b2956248861dbec5e8a9bc6023114e80` |
+| Registry   | `0xa2cfccb0b6d94b55d69ff90bcc2d1822150a16b5` |
+| Registrar  | `0x493a63a9b107b812ab3098cadaaa4abe86ad5bc5` |
+| Resolver   | `0x276b7e9343c19bea29d32dd4a8f84e6d1c183111` |
 
 ---
 
