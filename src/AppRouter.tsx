@@ -9,6 +9,7 @@ import { Burn } from './pages/Burn';
 import { Tokens } from './pages/Tokens';
 import { Gas } from './pages/Gas';
 import { Accounts } from './pages/Accounts';
+import { Revoke } from './pages/Revoke';
 
 function AppRouterInner() {
   const [spotlightOpen, setSpotlightOpen] = useState(false);
@@ -36,6 +37,7 @@ function AppRouterInner() {
           <Route path="/tokens" element={<PageTransition><Tokens /></PageTransition>} />
           <Route path="/gas" element={<PageTransition><Gas /></PageTransition>} />
           <Route path="/burn" element={<PageTransition><Burn /></PageTransition>} />
+          <Route path="/revoke" element={<PageTransition><Revoke /></PageTransition>} />
           <Route path="/accounts" element={<PageTransition><Accounts /></PageTransition>} />
         </Routes>
       </main>

@@ -34,6 +34,7 @@ Repo: OrthogonalMaffs/qf-tools
 | `/explorer/accounts`   | Accounts     | Live        |
 | `/explorer/:id`        | AccountView  | Live        |
 | `/burn`                | Burn         | Live        |
+| `/revoke`              | Revoke       | Built, parked (eth_getLogs not supported on QF RPC) |
 | `/tokens`              | Tokens       | Placeholder |
 | `/gas`                 | Gas          | Placeholder |
 
@@ -81,6 +82,7 @@ Repo: OrthogonalMaffs/qf-tools
 - SQLite database, Substrate WS RPC as data source
 - Exposed via Cloudflare Tunnel at `qf-explorer.mathswins.co.uk`
 - ETH RPC returns zero transactions -- must use Substrate WS RPC
+- ETH RPC `eth_getLogs` does NOT work — returns empty for all queries or "Failed to filter logs" on full-chain scans. Confirmed 2026-04-07. This blocks any feature relying on event log scanning (e.g. QFRevoke approval fetching).
 - See `.claude/rules/indexer-notes.md` for indexer internals
 
 ---
