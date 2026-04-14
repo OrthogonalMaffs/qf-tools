@@ -38,6 +38,73 @@
 - Uses labelHash (keccak of just the name), NOT ENS-style namehash for contract queries
 - Backfills from existing indexed ContractEmitted events on startup
 
+## Tunable Settings (as of 2026-04-14)
+
+Measured on the live indexer. Values chosen empirically, not speculative.
+
+| Setting | File | Value | Effect if raised |
+|---|---|---|---|
+| `BATCH_SIZE` | indexer.js | 100 | Fewer meta-table writes per batch |
+| `BACKFILL_CONCURRENCY` | indexer.js | 20 | More parallel RPC requests per batch |
+| `POLL_INTERVAL` | indexer.js | 2000 ms | Forward-watcher polling cadence (leave alone) |
+| `--max-old-space-size` | ecosystem.config.js | 2048 MB | Node heap ceiling |
+
+Observed fill rate at these values: **5–8 blocks/sec** on the QF mainnet WS RPC.
+Previous values (BATCH_SIZE 25, BACKFILL_CONCURRENCY 5, heap 768): ~0.5 b/s.
+
+If the RPC starts throwing errors after any further increase: **dial `BACKFILL_CONCURRENCY` back first, leave the other two alone**. One variable at a time so you know what broke.
+
+Changing `node_args` (heap) in ecosystem.config.js requires `pm2 delete qf-indexer && pm2 start ecosystem.config.js --only qf-indexer` — a plain `pm2 restart` does NOT re-read node_args.
+
+## RPC Session Sickness — "State already discarded"
+
+### Symptom
+`qf-indexer` logs fill with repeating:
+
+    [HEAD] Poll error: 4003: Client error: Api called for an unknown Block:
+    State already discarded for 0x<blockhash>...
+
+The forward watcher stops advancing. `head_block` stays frozen. The process stays `online` in PM2 but is effectively dead.
+
+### Cause
+`@polkadot/api`'s `ApiPromise` caches runtime metadata per block hash. When the node prunes state for a block the API had cached (usually around a runtime upgrade or long uptime across pruning boundaries), subsequent internal calls like `getRuntimeVersion(at=<old hash>)` fail permanently within that session. The process never recovers in-session.
+
+### Fix — crash early, let PM2 restart
+In-session `ApiPromise` reconstruction would be complex and bug-prone. Simpler: detect the class of errors and `process.exit(1)`. PM2 restarts automatically. Boot-time logic at indexer.js:378 already does the right thing — it jumps `head_block` to current chain tip and backfills the gap concurrently with the forward watcher.
+
+Applied 2026-04-14 inside the `[HEAD]` poll `catch` block:
+
+    if (/State already discarded|unknown Block|Api called for an unknown/i.test(err.message)) {
+      console.error("[HEAD] RPC session unrecoverable — exiting for PM2 restart");
+      process.exit(1);
+    }
+
+Four lines, zero state to preserve. PM2 handles the supervision.
+
+### What NOT to do
+- Don't try to patch `ApiPromise` metadata cache internals
+- Don't add retry-with-backoff — the error is permanent within the session, retries just delay the inevitable
+- Don't manually `UPDATE meta SET value = <tip> WHERE key = 'head_block'` — it works once but leaves the same crash waiting for the next pruning cycle
+
+## Two Cursors — Forward Watcher vs Backward Scanner
+
+Two independent loops updating two meta keys:
+
+- **`head_block`** — forward watcher. Advances every `POLL_INTERVAL` to the latest chain tip, processing any new blocks. This drives the "live activity" feed.
+- **`back_block`** — backward scanner. Walks downward toward genesis, filling historical data. On boot if a gap exists (oldHead → currentHead), the scanner fills that first (PRIORITY 1 GAP), then resumes normal historical backfill (PRIORITY 2 HISTORY).
+
+When you see `head_block > back_block` with a large difference, that's normal during gap-fill — both cursors are moving, just in opposite directions.
+
+## Recovery from Extended Outage
+
+Example: indexer down for several days. Chain advances X blocks. To fully recover:
+
+1. Fix the root cause (RPC issue, bad deploy, etc).
+2. `pm2 restart qf-indexer` — boot logic jumps head to chain tip, records X-block gap, starts backfill concurrently with forward watcher.
+3. Explorer is **immediately live** for new blocks because forward watcher starts from tip.
+4. Historical data trickles in behind it at current fill rate (5–8 b/s today → 1 day per ~500K blocks).
+5. Never run a third recovery path. The two cursors handle everything — adding a targeted gap-fill creates a third moving part to maintain.
+
 ## ethTransact Fix
 - revive.* extrinsics captured regardless of isSigned flag
 - Block filter includes revive section (hasSigned || method.section === 'revive')
