@@ -12,6 +12,7 @@ export function Navbar() {
     { path: '/tokens', label: 'Tokens' },
     { path: '/gas', label: 'Gas' },
     { path: '/burn', label: 'Burn' },
+    { path: '/migration', label: 'Migration' },
     { path: '/revoke', label: 'Revoke' },
   ];
 

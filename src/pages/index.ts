@@ -4,3 +4,4 @@ export { Burn } from './Burn';
 export { Tokens } from './Tokens';
 export { Gas } from './Gas';
 export { Accounts } from './Accounts';
+export { Migration } from './Migration';

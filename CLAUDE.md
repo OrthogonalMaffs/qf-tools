@@ -22,7 +22,9 @@ Repo: OrthogonalMaffs/qf-tools
 | Icons      | lucide-react only                            |
 | Fonts      | Fontshare (Clash Display, Satoshi) + Google (JetBrains Mono) |
 
-**Do NOT use:** component libraries (shadcn, MUI, Chakra, Radix), chart libraries, CSS-in-JS, @tailwindcss/vite.
+**Do NOT use:** component libraries (shadcn, MUI, Chakra, Radix), chart libraries (Chart.js, Recharts, Victory, Nivo, any external), CSS-in-JS, @tailwindcss/vite.
+
+**Charts:** hand-rolled SVG. Use viewBox-scaled SVG elements driven by our own data, with Framer Motion `motion.path` / `motion.rect` for line-draw or grow-in animations. Axis labels in JetBrains Mono. No canvas, no chart library. The Burn page placeholder is a future example of this pattern.
 
 ---
 

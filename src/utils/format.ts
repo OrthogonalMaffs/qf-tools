@@ -1,3 +1,8 @@
+export function parseQF(val: string): number {
+  const n = parseFloat(val);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export function formatQF(amount: string | number): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(num)) return '0.00';
