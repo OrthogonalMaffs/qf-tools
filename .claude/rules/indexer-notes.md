@@ -56,6 +56,24 @@ If the RPC starts throwing errors after any further increase: **dial `BACKFILL_C
 
 Changing `node_args` (heap) in ecosystem.config.js requires `pm2 delete qf-indexer && pm2 start ecosystem.config.js --only qf-indexer` — a plain `pm2 restart` does NOT re-read node_args.
 
+### POLL_INTERVAL is not a backfill lever
+
+Two independent loops:
+- **Forward watcher** (governed by `POLL_INTERVAL`) — checks chain tip every N ms
+- **Backward scanner** (governed by `BACKFILL_CONCURRENCY`) — runs continuously in parallel, 20 RPC requests at a time
+
+Slowing the forward watcher does **not** "give" backfill more capacity directly. The only indirect effect: the two loops share one RPC connection, and the watcher briefly blocks the scanner (`headBusy` flag) while processing tip blocks. Raising `POLL_INTERVAL` frees up contiguous time for the scanner — maybe 10–20% uplift at most.
+
+Empty blocks don't help either: every block still costs the same RPC round-trip to check, whether it has activity or not. The bottleneck is RPC latency per block, not DB inserts.
+
+### Next tuning step (if needed)
+
+If 5–8 b/s isn't fast enough and the RPC isn't throwing errors, try **in order**, one at a time:
+1. `BACKFILL_CONCURRENCY`: 20 → 30 (more parallel RPC calls)
+2. `POLL_INTERVAL`: 2000 → 5000 ms (modest indirect boost, and 5s is still essentially live on the UI)
+
+Stack both for a realistic 30–40% extra throughput. Watch logs for `Poll error` or `rate limit` — if either appears, revert the most recent change and stop.
+
 ## RPC Session Sickness — "State already discarded"
 
 ### Symptom
