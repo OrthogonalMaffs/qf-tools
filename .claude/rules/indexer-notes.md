@@ -56,6 +56,16 @@ If the RPC starts throwing errors after any further increase: **dial `BACKFILL_C
 
 Changing `node_args` (heap) in ecosystem.config.js requires `pm2 delete qf-indexer && pm2 start ecosystem.config.js --only qf-indexer` — a plain `pm2 restart` does NOT re-read node_args.
 
+### RPC State Pruning is the real bottleneck (2026-04-15)
+
+`wss://mainnet.qfnode.net` and `archive.mainnet.qfnode.net/eth` are both effectively pruned nodes — despite one hostname literally containing "archive". Observed retention: ~3 days of state. Blocks older than that return "State already discarded" on `getBlock` and `getRuntimeVersion` calls.
+
+When the backward scanner hits 3+ consecutive "discarded" batches, the `PRUNED_SKIP_THRESHOLD` logic jumps 10,000 blocks and tries again. This means gaps inside pruned windows are **permanently incomplete** from this RPC — the indexer can't retrieve data that's been pruned, regardless of retry count or concurrency.
+
+**Bumping `BACKFILL_CONCURRENCY` when the RPC is pruning does nothing useful.** More parallel requests for missing state = more parallel errors. Check the logs for pruning before tuning: if you see `[BACK] Pruned zone detected` followed by skip-ahead logs, that's the RPC's retention ceiling, not our throughput ceiling.
+
+Fix requires either a true archive endpoint from the QF Network team, or running our own archive node (needs team-provided chain spec + weeks of initial sync from peers).
+
 ### POLL_INTERVAL is not a backfill lever
 
 Two independent loops:
